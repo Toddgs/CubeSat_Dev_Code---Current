@@ -15,6 +15,7 @@
 #include "PIT.h"
 #include "cubesat.h"
 #include "CAN.c"
+//PIT: Periodic Interrupt Timer
 
 /*!
  * @brief Application entry point.
@@ -32,6 +33,10 @@ TaskHandle_t xTask1 = NULL, xTask2 = NULL;
 int key = 0;
 
 int Queue_Length = 10;
+
+cs_event recv_event;
+int pit_task_counter = 0;
+
 
 /*void PIT_HANDLER(void)
 {
@@ -57,12 +62,15 @@ static void sender_task(void*p)
 	for(;;)
 	{
 		printf("sender_task - Running         \n\r");
+		//Delay a task for a given number of ticks. The actual time that the task remains blocked depends on the tick rate. 
 		vTaskDelay(500);
 		printf("sender_task - sending         \n\r");
 		// xTask2 +1
 		//xTaskNotifyGive(xTask2);
 		printf("sender_task - sleep         \n\r");
 		// xTask2 -1
+		
+		//pdTrue sets task notification value to 0. portMax_DELAY will cause the task to wait indefinitely 
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 	}
 	//////////////////////////////
@@ -90,6 +98,7 @@ static void sender_task(void*p)
 
 	/////////////////////////////
 }
+
 //-------------------------------------------------------------
 /* This function must be defined in a C source file, not the FreeRTOSConfig.h header
 file. */
@@ -107,8 +116,6 @@ printf( "\n\r%i",ulLine );
  for( ;; );
 }*/
 /*-----------------------------------------------------------*/
-
-cs_event recv_event;
 
 static void receiver_task(void*p)
 {
@@ -155,14 +162,13 @@ static void receiver_task(void*p)
 		//}
 	}*/
 	////////////////////////////////////////////
-	}
+}
 
 	//vTaskSuspend(NULL);
 
 
 
 	//}
-int pit_task_counter = 0;
 
 static void PIT_task(void*p)
 {
