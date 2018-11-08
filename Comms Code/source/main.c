@@ -24,7 +24,7 @@
 /*Generating Queue*/
 xQueueHandle Global_Queue_Handle = 0;
 
-//declaring task handlers-the binary semephore
+//declaring task handlers-the binary semaphore
 TaskHandle_t xTask1 = NULL, xTask2 = NULL;
 //static TaskHandle_t xHandle = NULL;
 
