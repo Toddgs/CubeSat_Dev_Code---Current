@@ -26,9 +26,6 @@ xQueueHandle Global_Queue_Handle = 0;
 
 //declaring task handlers-the binary semaphore
 TaskHandle_t xTask1 = NULL, xTask2 = NULL;
-//static TaskHandle_t xHandle = NULL;
-
-//eTaskState eTaskGetState(TaskHandle_t xHandle);
 
 int key = 0;
 
@@ -36,25 +33,6 @@ int Queue_Length = 10;
 
 cs_event recv_event;
 int pit_task_counter = 0;
-
-
-/*void PIT_HANDLER(void)
-{
-	//BaseType_t xYielldRequired;
-
-
-     Clear interrupt flag.
-    PIT_ClearStatusFlags(PIT, kPIT_Chnl_0, PIT_TFLG_TIF_MASK);
-    //printf("\r\n Channel No.0 interrupt is occured !");
-    xTaskResumeFromISR(xHandle);
-    xYielldRequired = xTaskResumeFromISR(xHandle);
-    if(xYielldRequired == pdTRUE)
-    {
-    	kPIT_Chnl_0YIELD_FROM_ISR();
-    }
-    //xTaskNotifyGive(xHandle);
-    //pitIsrFlag = true;
-}*/
 
 
 static void sender_task(void*p)
@@ -65,40 +43,14 @@ static void sender_task(void*p)
 		//Delay a task for a given number of ticks. The actual time that the task remains blocked depends on the tick rate. 
 		vTaskDelay(500);
 		printf("sender_task - sending         \n\r");
-		// xTask2 +1
-		//xTaskNotifyGive(xTask2);
 		printf("sender_task - sleep         \n\r");
-		// xTask2 -1
 		
 		//pdTrue sets task notification value to 0. portMax_DELAY will cause the task to wait indefinitely 
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 	}
-	//////////////////////////////
-/*	int i = 0;
-	while(1){
-//if(xTask1 != NULL){
-	//ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		//vTaskResume(xTask2);
-		printf("\n\rSending %i to receiver task", i);
-		if (!xQueueSend(Global_Queue_Handle, &i, 1000)){
-			puts("\n\rFailed to send to queue");
-		}
-
-		//++key;
-		++i;
-		vTaskDelay(2000);
-
-		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		xTaskNotifyGive(xTask2);
-
-
-		//vTaskResume(xTask2);
-//}
-	}*/
-
-	/////////////////////////////
 }
 
+//The following code must have been taken from the imported code, but why??? and why is it commented out?
 //-------------------------------------------------------------
 /* This function must be defined in a C source file, not the FreeRTOSConfig.h header
 file. */
@@ -122,7 +74,7 @@ static void receiver_task(void*p)
 	for(;;)
 	{
 		printf("receiver_task - sleep        \n\r");
-		// xTask1 -1 therefore blocked
+
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 		printf("receiver_task - running       \n\r");
 
@@ -136,39 +88,9 @@ static void receiver_task(void*p)
 			printf("Word1:0x%08x\n\r",recv_event.canframe.dataWord0);
 			printf("Word1:0x%08x\n\r",recv_event.canframe.dataWord1);
 		}
-
-
-		// xTask1 +1 therefore unblocked
-		//xTaskNotifyGive(xTask1);
-		//xTaskNotifyGive(xTask1);
 	}
-
-	//////////////////////////////////////////////////
-	/*int rx_int = 0;
-	//while(key>0){
-	while(1){
-		//if(xTask1 != NULL){
-			ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		//if(ulTaskNotifyTake(pdTRUE, portMAX_DELAY)){
-		//while(key>0){
-		if (xQueueReceive(Global_Queue_Handle, &rx_int, 1000)){
-			printf("\n\rReceived %i", rx_int);
-		}
-		else{
-			puts("\n\rTime elapsed without receiving data");
-		}
-		//--key;
-		xTaskNotifyGive(xTask1);
-		//}
-	}*/
-	////////////////////////////////////////////
 }
 
-	//vTaskSuspend(NULL);
-
-
-
-	//}
 
 static void PIT_task(void*p)
 {
@@ -177,37 +99,16 @@ static void PIT_task(void*p)
 	for(;;)
 	{
 		printf("\r\n PIT_task - 1");
-/*		if(xHandle == NULL)
-		{
-			printf("\r\n xHandle == NULL");
-		}*/
 
-		//configASSERT( xHandle == NULL );
-
-		/* Store the handle of the calling task. */
 		xHandle = xTaskGetCurrentTaskHandle();
-		//printf(" 1\n");
-		//printf("0x%08x",xHandle);
-		//configASSERT( xHandle == NULL );
-		//printf(" PIT_task - %d",pit_task_counter++);
 
-
-
-	    /* Store the handle of the calling task. */
-		//xHandle = xTaskGetCurrentTaskHandle();
 		printf("\r\n PIT_task - putting itself to sleep now\r\n");
-		//ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
-		//ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		//printf("\r\n PIT_task - Channel No.0 task is occured !");
-		//xTaskNotifyGive(xHandle);
-		// xHandle -1 therefore unblocked
-		//taskENABLE_INTERRUPTS();
+
 		ulNotificationValue = ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
-		//printf("0x%08x",ulNotificationValue);
+
 		if( ulNotificationValue == 1 )
 		   {
 		        printf("The transmission ended as expected.");
-		        //ulTaskNotifyTake( pdTRUE, xMaxBlockTime );
 		    }
 		    else
 		    {
@@ -229,19 +130,16 @@ int main(void){
 
 	FLEXCAN_INIT();
 	/* Add your code here */
-
-
 	/*Creating Queue*/
 	Global_Queue_Handle = xQueueCreate(Queue_Length, sizeof(cs_event));
 
 	xTaskCreate(sender_task, (signed char*) "tx", 500, NULL, tskIDLE_PRIORITY, &xTask1);
 	xTaskCreate(receiver_task, (signed char*) "rx", 500, NULL, tskIDLE_PRIORITY, &xTask2);
-	//xTaskCreate(PIT_task, (signed char*) "pit", 500, NULL, tskIDLE_PRIORITY, &xHandle);
 
 	vTaskStartScheduler();
 
 
-
+//FIXME: Commented out switch statement that can be used when we get the CAN code running.
 /*	char a = 0;
 	while(1){
 		printf("\n\rC&DH Monitor>");
@@ -276,11 +174,6 @@ int main(void){
 		}
 		}
 	}*/
-
-
-
-
-
 
 	//xTaskCreate(sender_task, (signed char*) "tx", 1024, NULL, 1, NULL);
 	//xTaskCreate(receiver_task, (signed char*) "rx", 1024, NULL, 1, NULL);
