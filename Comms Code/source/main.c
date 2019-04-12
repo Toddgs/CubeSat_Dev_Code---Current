@@ -23,30 +23,21 @@
 
 /*Generating Queue*/
 xQueueHandle Global_Queue_Handle = 0;
-
-//declaring task handlers-the binary semaphore
-TaskHandle_t xTask1 = NULL, xTask2 = NULL;
-
+TaskHandle_t xTask1 = NULL, xTask2 = NULL; //declaring task handlers-the binary semaphore
 int key = 0;
-
 int Queue_Length = 10;
-
 cs_event recv_event;
 int pit_task_counter = 0;
-
 
 static void sender_task(void*p)
 {
 	for(;;)
 	{
-		printf("sender_task - Running         \n\r");
-		//Delay a task for a given number of ticks. The actual time that the task remains blocked depends on the tick rate. 
-		vTaskDelay(500);
-		printf("sender_task - sending         \n\r");
-		printf("sender_task - sleep         \n\r");
-		
-		//pdTrue sets task notification value to 0. portMax_DELAY will cause the task to wait indefinitely 
-		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		printf("sender_task - Running         \n\r"); //Print status message
+		vTaskDelay(500); //Delay a task for a given number of ticks. The actual time that the task remains blocked depends on the tick rate. 
+		printf("sender_task - sending         \n\r"); //Print status message
+		printf("sender_task - sleep         \n\r"); //Print status message
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY); //pdTrue sets task notification value to 0. portMax_DELAY will cause the task to wait indefinitely 
 	}
 }
 
@@ -73,24 +64,22 @@ static void receiver_task(void*p)
 {
 	for(;;)
 	{
-		printf("receiver_task - sleep        \n\r");
-
-		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		printf("receiver_task - running       \n\r");
+		printf("receiver_task - sleep        \n\r"); //Print status message
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY); 
+		printf("receiver_task - running       \n\r"); //Print status message
 
 		recv_event.timestamp = -1;
 
 		xQueueReceive(Global_Queue_Handle, &recv_event, 0);
 
-		printf("Pulled event from queue.  Message source:%d\n\r", recv_event.sourcedest);
+		printf("Pulled event from queue.  Message source:%d\n\r", recv_event.sourcedest); //Print status message including destination
 
-		if(recv_event.sourcedest == FROM_CAN){
-			printf("Word1:0x%08x\n\r",recv_event.canframe.dataWord0);
+		if(recv_event.sourcedest == FROM_CAN){ //This if statement prints the data that was received by the CAN
+			printf("Word1:0x%08x\n\r",recv_event.canframe.dataWord0); 
 			printf("Word1:0x%08x\n\r",recv_event.canframe.dataWord1);
 		}
 	}
 }
-
 
 static void PIT_task(void*p)
 {
@@ -99,39 +88,34 @@ static void PIT_task(void*p)
 	for(;;)
 	{
 		printf("\r\n PIT_task - 1");
-
 		xHandle = xTaskGetCurrentTaskHandle();
-
 		printf("\r\n PIT_task - putting itself to sleep now\r\n");
-
 		ulNotificationValue = ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
-
 		if( ulNotificationValue == 1 )
-		   {
-		        printf("The transmission ended as expected.");
-		    }
-		    else
-		    {
-		    	  printf("The call to ulTaskNotifyTake() timed out.");
-		    }
+		{
+      printf("The transmission ended as expected.");
+    }
+    else
+    {
+   	  printf("The call to ulTaskNotifyTake() timed out.");
+    }
 	}
 }
+
 int main(void){
-
 	/* Init board hardware. */
-
 	Board_Init();
 	MPU_Enable(MPU, false);
 	NVIC_SetPriority ( 48, 14 ); /* CAN0 is IRQ 75.  MAX priority is 5, so we need to set to
 	next highest even number than 2*5, so priority = 12 */
 	NVIC_SetPriority ( CAN0_ORed_Message_buffer_IRQn, 12 );
 
-	PIT_INIT();
+	PIT_INIT(); //Initializes the Periodic Interupt Timer
 
-	FLEXCAN_INIT();
+	FLEXCAN_INIT(); //Initializes the CAN controller on the board
 	/* Add your code here */
 	/*Creating Queue*/
-	Global_Queue_Handle = xQueueCreate(Queue_Length, sizeof(cs_event));
+	Global_Queue_Handle = xQueueCreate(Queue_Length, sizeof(cs_event)); //Creates the Queue object
 
 	xTaskCreate(sender_task, (signed char*) "tx", 500, NULL, tskIDLE_PRIORITY, &xTask1);
 	xTaskCreate(receiver_task, (signed char*) "rx", 500, NULL, tskIDLE_PRIORITY, &xTask2);
