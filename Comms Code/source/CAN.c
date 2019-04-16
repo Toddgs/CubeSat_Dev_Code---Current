@@ -32,7 +32,7 @@ extern xQueueHandle Global_Queue_Handle;
 //volatile bool pitIsrFlag = false;
 
 int can_rx_counter = 0;
-//BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+//BaseType_t xHigherPriorityTaskWoken = pdFALSE; //FIXME: Why is this commented out?
 BaseType_t xHigherPriorityTaskWoken1 = pdFALSE;
 
 cs_event can_rx_event;
@@ -44,9 +44,6 @@ flexcan_frame_t RecvFrame;
 
 void FLEXCAN_RX_HANDLER(void)
 {
-
-
-
     /* Clear interrupt flag.*/
 	//FLEXCAN_ClearStatusFlags(CAN0, kFLEXCAN_RxFifoFrameAvlFlag);//kFLEXCAN_RxFifoFrameAvlFlag);// kFLEXCAN_RxErrorWarningFlag);
 	FLEXCAN_ClearMbStatusFlags(CAN0, 1 << 15);
@@ -62,16 +59,16 @@ void FLEXCAN_RX_HANDLER(void)
     printf("\r\n CAN_RX_HANDLER - Channel No.0 interrupt is occured ! %d\r\n",can_rx_counter++);
 
     if (can_rx_counter>3){
-    	while(1!=1){}
+    	while(1!=1){} //FIXME What the hell is this even for??? 
     }
 
    // printf("%08x",xHandle);
 
     //pit_event.timestamp = pit_counter;
-    ReceiveCANMesg(&(can_rx_event.canframe));
-    can_rx_event.sourcedest = FROM_CAN;
+    ReceiveCANMesg(&(can_rx_event.canframe)); //Receives the data from the CAN buffer.
+    can_rx_event.sourcedest = FROM_CAN; //FIXME setting this value equal to 1???
 
-    xQueueSendFromISR(Global_Queue_Handle, &can_rx_event, &xHigherPriorityTaskWoken1);
+    xQueueSendFromISR(Global_Queue_Handle, &can_rx_event, &xHigherPriorityTaskWoken1); //FIXME What does this do?
     printf("... added CAN event to queue... ");
 
     //WHERE IT STOPS=====================================

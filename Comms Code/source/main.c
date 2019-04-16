@@ -22,12 +22,12 @@
  */
 
 /*Generating Queue*/
-xQueueHandle Global_Queue_Handle = 0;
+xQueueHandle Global_Queue_Handle = 0; //Initial value of Queue Handler.
 TaskHandle_t xTask1 = NULL, xTask2 = NULL; //declaring task handlers-the binary semaphore
-int key = 0;
-int Queue_Length = 10;
-cs_event recv_event;
-int pit_task_counter = 0;
+int key = 0; 
+int Queue_Length = 10; //Sets the max value of the queue length.
+cs_event recv_event; //Creates a received event variable. 
+int pit_task_counter = 0; 
 
 static void sender_task(void*p)
 {
@@ -62,10 +62,10 @@ printf( "\n\r%i",ulLine );
 
 static void receiver_task(void*p)
 {
-	for(;;)
+	for(;;) //Infinite for loop.
 	{
 		printf("receiver_task - sleep        \n\r"); //Print status message
-		ulTaskNotifyTake(pdTRUE, portMAX_DELAY); 
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);  //pdTrue sets task notification value to 0. portMax_DELAY will cause the task to wait indefinitely
 		printf("receiver_task - running       \n\r"); //Print status message
 
 		recv_event.timestamp = -1;
@@ -85,12 +85,12 @@ static void PIT_task(void*p)
 {
 	uint32_t ulNotificationValue;
 	const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 200 );
-	for(;;)
+	for(;;) //Infinite loop with a for loop. 
 	{
 		printf("\r\n PIT_task - 1");
-		xHandle = xTaskGetCurrentTaskHandle();
+		xHandle = xTaskGetCurrentTaskHandle(); //Check the task scheduler and get the current task.
 		printf("\r\n PIT_task - putting itself to sleep now\r\n");
-		ulNotificationValue = ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
+		ulNotificationValue = ulTaskNotifyTake( pdFALSE, portMAX_DELAY ); //Get the notification value to check and see if message was transmitted.
 		if( ulNotificationValue == 1 )
 		{
       printf("The transmission ended as expected.");
@@ -117,10 +117,10 @@ int main(void){
 	/*Creating Queue*/
 	Global_Queue_Handle = xQueueCreate(Queue_Length, sizeof(cs_event)); //Creates the Queue object
 
-	xTaskCreate(sender_task, (signed char*) "tx", 500, NULL, tskIDLE_PRIORITY, &xTask1);
-	xTaskCreate(receiver_task, (signed char*) "rx", 500, NULL, tskIDLE_PRIORITY, &xTask2);
+	xTaskCreate(sender_task, (signed char*) "tx", 500, NULL, tskIDLE_PRIORITY, &xTask1); //Create a task (for PIT) for sending.
+	xTaskCreate(receiver_task, (signed char*) "rx", 500, NULL, tskIDLE_PRIORITY, &xTask2); //Create a task (for PIT) for receiving.
 
-	vTaskStartScheduler();
+	vTaskStartScheduler(); //Start the task scheduler and initialize it. 
 
 
 //FIXME: Commented out switch statement that can be used when we get the CAN code running.
