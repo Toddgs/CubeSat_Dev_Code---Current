@@ -15,7 +15,7 @@
 #include "clock_config.h"
 //#include "MK22FA12.h"
 
-#define MAX_TRANSFER_SIZE 8   //unsure max size
+#define MAX_TRANSFER_SIZE 8   //unsure max size (TODO: We should prolly find out what the max size is...)
 
 #define MAG_I2C_ADDR	0x0E
 #define MAG_CMDREG		0x10
@@ -60,13 +60,13 @@ void I2C_Write(I2C_Type *i2cType, int DeviceAddress, int StartAddress, int Write
 	i2c_master_transfer_t transfer;
 
 	printf("\rInitializing struct...\n\r");
-	transfer.flags = 0;
-	transfer.slaveAddress = DeviceAddress;
-	transfer.direction = kI2C_Write;
-	transfer.subaddress = StartAddress;
-	transfer.subaddressSize = WriteDataNumBytes;
-	transfer.data = WriteData;
-	transfer.dataSize = WriteDataNumBytes;
+	transfer.flags = 0; /*!< A transfer flag which controls the transfer. */
+	transfer.slaveAddress = DeviceAddress; /*!< 7-bit slave address. */
+	transfer.direction = kI2C_Write; /*!< A transfer direction, read or write. */
+	transfer.subaddress = StartAddress; /*!< A sub address. Transferred MSB first. */
+	transfer.subaddressSize = WriteDataNumBytes; /*!< A size of the command buffer. */
+	transfer.data = WriteData; /*!< A transfer buffer. */
+	transfer.dataSize = WriteDataNumBytes; /*!< A transfer size. */
 	printf("\rSending ... \n\r" );
 
 	I2C_MasterTransferBlocking(i2cType, &transfer);
@@ -78,13 +78,13 @@ void I2C_Read(I2C_Type *i2cType, int DeviceAddress, int StartAddress, int WriteD
 	i2c_master_transfer_t transfer;
 
 	printf("\rInitializing struct...\n\r");
-	transfer.flags = 0;
-	transfer.slaveAddress = DeviceAddress;
-	transfer.direction = kI2C_Read;
-	transfer.subaddress = StartAddress;
-	transfer.subaddressSize = WriteDataNumBytes;
-	transfer.data = WriteData;
-	transfer.dataSize = WriteDataNumBytes;
+	transfer.flags = 0; /*!< A transfer flag which controls the transfer. */
+	transfer.slaveAddress = DeviceAddress; /*!< 7-bit slave address. */
+	transfer.direction = kI2C_Read; /*!< A transfer direction, read or write. */
+	transfer.subaddress = StartAddress; /*!< A sub address. Transferred MSB first. */
+	transfer.subaddressSize = WriteDataNumBytes; /*!< A size of the command buffer. */
+	transfer.data = WriteData; /*!< A transfer buffer. */
+	transfer.dataSize = WriteDataNumBytes; /*!< A transfer size. */
 	printf("\rReading ... \n\r" );
 
 	I2C_MasterTransferBlocking(i2cType, &transfer);
@@ -129,7 +129,7 @@ int I2C_X()
 {
 	int msb, lsb;
 	int reading;
-	int i;
+	int i; //Is this unused? TODO: Maybe get rid of unused variables.
 
 	printf("\rRead X bytes\n\r");
 	I2C_Read(I2C0, MAG_I2C_ADDR,MAG_X,1,ReceiveData);
@@ -158,7 +158,7 @@ int I2C_Y()
 {
 	int msb, lsb;
 	int reading;
-	int i;
+	int i; //This might be unused as well...
 
 	printf("\rRead Y bytes\n\r");
 	I2C_Read(I2C0, MAG_I2C_ADDR,MAG_Y,1,ReceiveData);
@@ -172,7 +172,7 @@ int I2C_Y()
 		reading = 0xFFFF0000;
 		reading |= (msb<<8);
 		reading |= lsb;
-		//reading = -reading;
+		//reading = -reading; Why is this commented out? What did it do?
 	} else {
 		reading = (msb<<8) | lsb;
 	}
@@ -189,7 +189,7 @@ int I2C_Z()
 
 	int msb, lsb;
 	int reading;
-	int i;
+	int i; //Again, unused, why?
 
 	printf("\rRead Z bytes\n\r");
 	I2C_Read(I2C0, MAG_I2C_ADDR,MAG_Z,1,ReceiveData);

@@ -16,7 +16,7 @@
 //extern int DOF_Test(void);
 
 // Function Declarations
-void delay(void);
+void delay(void); //Does what it says, delays using NOPs.
 
 // Main
 int main(void) {
@@ -33,17 +33,20 @@ BOARD_InitPins();
 	GPIO_PinInit(GPIOA, 7U, &pin_config); // pin 59
 
 	GPIO_SetPinsOutput(GPIOA, 1U << 6U);
-	for (;;) {
+	for (;;) { //Maybe switch this to a while(true)? (Since I have been asked, for (;;) is an infinite loop)
 		GPIO_TogglePinsOutput(GPIOA, 1U << 7U);
 		delay();
 		// Command Parser
-		char z;
-		z = getchar();
-		//z = 'f';
-		// Echo is no-worky; there is no "why"; it just is...
-		//printf("!!\r\n");
-		//printf("%c",z);
-		//printf("!!\r\n");
+		char z; //A variable to store the input character. WE SHOULD USE DECENT VARIABLE NAMES Z IS BAD
+		z = getchar(); //Sticks the input into the variable.
+		/*Testing code to see if the board works properly.
+		 *
+		 * z = 'f';
+		 * Echo is no-worky; there is no "why"; it just is...
+		 * printf("!!\r\n");
+		 * printf("%c",z);
+		 * printf("!!\r\n");
+		*/
 		switch (z) {
 
 		case 'a': ;

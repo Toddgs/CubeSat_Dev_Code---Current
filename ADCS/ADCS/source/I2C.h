@@ -1,8 +1,8 @@
 /*
  * I2C.h
- *
+ * TODO: Who was working on this project on this date? Might be able to tell us something about it...
  *  Created on: Jun 15, 2018
- *      Author: edmundspencer
+ *      Author: Student
  */
 
 #ifndef SOURCE_I2C_H_

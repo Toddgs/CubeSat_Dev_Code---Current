@@ -24,7 +24,7 @@ dspi_transfer_t transfer;
 static uint8_t ReceiveData[MAX_TRANSFER_SIZE];
 static uint8_t SendData[MAX_TRANSFER_SIZE];
 
-//  Definition of dspi_transfer_t
+//  Definition of dspi_transfer_t //TODO can prolly get rid of this as we can just peek the definition...
 // 	uint8_t *txData;          /*!< Send buffer. */
 //    uint8_t *rxData;          /*!< Receive buffer. */
 //    volatile size_t dataSize; /*!< Transfer bytes. */
@@ -118,7 +118,7 @@ int Temp_Test(void) {
 	transfer.dataSize = 2;
 	transfer.configFlags = kDSPI_MasterPcsContinuous | kDSPI_MasterPcs0 | kDSPI_MasterCtar0;
 
-	for(;;){
+	for(;;){ //TODO Maybe change this to while(true)? Dunno why they used this infinite loop.
 
 		SendData[0] = (0x41 | (1 << 7)); //Address of Temp msb
 		SendData[1] = 0xff;  //Dummy data
